@@ -1,0 +1,23 @@
+{% extends "base.html"%}
+{% block content%}
+
+
+<div style="padding-left:16px">
+  <h2>Сведения о покупателе, сделавшем наибольшее количество покупок в [ГОД]</h2>
+<form action = "/queries/6" method="POST" name="goods">
+
+  <!-- Email input -->
+  <div class="form-outline mb-4">
+    <input style='
+    width: 50%;
+' type="number" name="year" class="form-control" />
+    <label class="form-label">МЕСЯЦ-ГОД</label>
+  </div>
+
+  <!-- Submit button -->
+  <button type="submit" class="btn btn-primary btn-block mb-4">Найти</button>
+
+</form>
+</div>
+
+{% endblock%}

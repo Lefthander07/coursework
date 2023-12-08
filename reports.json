@@ -1,0 +1,18 @@
+[
+  {
+    "rep_name": "Отчет о продаже товаров за период",
+    "rep_id": "1",
+    "url": {
+      "create_rep": "bp_report.create_rep_1",
+      "view_rep": "bp_report.view_rep_1"
+    }
+  },
+  {
+    "rep_name": "Отчет о покупателях за период",
+    "rep_id": "2",
+    "url": {
+      "create_rep": "bp_report.create_rep_2",
+      "view_rep": "bp_report.view_rep_2"
+    }
+  }
+]

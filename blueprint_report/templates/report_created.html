@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 card mt-5 container text-center col-8" style="height: 80%; overflow-y: auto">
+    <h2 class="display-6">Меню отчетов</h2>
+    <p>Для просмотра отчета нажмите ниже</p>
+    <a class="mt-2" href={{ to_url }}>Просмотр созданного отчёта</a>
+    <a class="mt-auto" href={{ url_for('bp_report.start_report') }}> Вернуться в главное меню</a>
+</div>
+{% endblock %}

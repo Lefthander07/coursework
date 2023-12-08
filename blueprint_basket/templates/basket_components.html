@@ -1,0 +1,193 @@
+<!--{% macro render_content(items) %}-->
+<!--{% for item in items %}-->
+<!--<div >-->
+<!--    <div>Название: {{ item["gname"]}}</div>-->
+<!--    <div>Единица: {{ item["unit"]}}</div>-->
+<!--    <div>Цена: {{ item["price"]}}</div>-->
+<!--    <div>Количество на складе: {{ item["quantity"] }}</div>-->
+
+<!--    <form action="" method="post">-->
+<!--        <input type="hidden" name="item_id" value={{ item['idgoods'] }}>-->
+<!--        <button type="submit" class="btn btn-primary" >Добавить в корзину</button>-->
+<!--    </form>-->
+<!--</div>-->
+
+<!--{% endfor %}-->
+
+
+<!--{% endmacro %}-->
+<!--{% macro render_basket(items) %}-->
+<!--{% for _, item_data in items.items() %}-->
+<!--<div class="item">-->
+<!--    <div>Название: {{ item_data["gname"]}}</div>-->
+<!--    <div>Единица: {{ item_data["unit"]}}</div>-->
+<!--    <div>Цена: {{ item_data["price"]}}</div>-->
+<!--    <div>Количество на складе: {{ item_data["quantity"] }}</div>-->
+<!--    <div>В корзине: {{item_data["count"]}}</div> <br>-->
+<!--</div>-->
+
+<!--{% endfor %}-->
+<!--{% endmacro %}-->
+
+
+
+
+
+{% macro render_item(item, show_form=False) %}
+<div class="card shadow-0 border rounded-3 col-12">
+    <div class="card-body d-flex">
+        <div class="col-md-5">
+            <h5>{{ item['gname']}}</h5>
+            <div class="mt-1 mb-0 text-muted small">
+                <span>единица: {{ item['unit'] }}</span>
+            </div>
+            <div class="mb-2 text-muted small">
+                <span>Артикль: {{ item['idgoods'] }}</span>
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="vr col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <div class="d-flex flex-row align-items-center mb-1">
+                <h5 class="mb-1 me-1">{{ item['price'] }} ₽</h5>
+            </div>
+            {% if show_form and item['available'] > 0 %}
+            <h6 class="text-success">{{ item['available'] }} шт.</h6>
+            <div class="d-flex flex-column mt-3">
+                <form action="" method="POST">
+                    <input type="hidden" name="item_id" value="{{ item['idgoods'] }}">
+
+                    <input type="submit" name="action" class="btn btn-primary" value="Добавить">
+                </form>
+            </div>
+            {% elif show_form %}
+            <p class="text-danger">Нет в наличии</p>
+            {% else %}
+            <div class="col-12">
+                <label for="amount" class="text-muted small col-12">Количество:</label>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('bp_order.clear', id_detail=item['idgoods'], value='-1') }}" class="col-2">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <div class="col-6">
+                        <form action="amount" method="POST">
+                            <input id="amount" min="1" max="{{ item['available'] }}" name="amount"
+                                   value="{{ item['ordered'] }}" type="number" class="form-control form-control-sm"
+                                   onblur="form.submit()"/>
+                            <input type="hidden" value="{{ item['idgoods'] }}" name="detail">
+                        </form>
+
+                    </div>
+                    <a href="{{ url_for('bp_basket.edit_amount_basket', id_detail=item['idgoods'], value='1') }}" class="col-2">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+
+{% macro render_basket(item, show_form=False) %}
+<div class="card shadow-0 border rounded-3 col-12">
+    <div class="card-body d-flex">
+        <div class="col-md-5">
+            <h5>{{ item['gname']}}</h5>
+            <div class="mt-1 mb-0 text-muted small">
+                <span>единица: {{ item['unit'] }}</span>
+            </div>
+<!--            <div class="mb-2 text-muted small">-->
+<!--                <span>Артикль: {{ item['idgoods'] }}</span>-->
+<!--            </div>-->
+        </div>
+        <div class="col-md-1"></div>
+        <div class="vr col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <div class="d-flex flex-row align-items-center mb-1">
+                <h5 class="mb-1 me-1">{{ item['price'] }} ₽</h5>
+                         <a href="{{url_for('bp_basket.delete_from_basket',id=item['id'])}}" style="color: #9f9f9f"
+                   class="ms-auto">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+
+            <div class="col-12">
+                <label for="amount" class="text-muted small col-12">Количество:</label>
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('bp_basket.edit_amount_basket', id_detail=item['id'], value='-1') }}" class="col-2">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <div class="col-6">
+                        <form action="amount" method="POST">
+                            <input id="amount" min="1" max="{{ item['available'] }}" name="amount"
+                                   value="{{ item['count'] }}" type="number" class="form-control form-control-sm"
+                                   onblur="form.submit()"/>
+                            <input type="hidden" value="{{ item['id'] }}" name="detail">
+                        </form>
+
+                    </div>
+                    <a href="{{ url_for('bp_basket.edit_amount_basket', id_detail=item['id'], value='1') }}" class="col-2">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+
+{% macro render_order(order, show_form=False) %}
+<div class="card shadow-0 border rounded-3 col-12">
+    <div class="card-body d-flex">
+        <div class="col-md-5">
+            <h5>{{order['idorders']}}</h5>
+            <div class="mt-1 mb-0 text-muted small">
+                <span>Статус заказа: {%if order['status'] == 0%} ожидает оплаты {% elif order['status']==1%} оплачен
+                {% else%} просрочен {% endif%}
+                </span>
+            </div>
+            <div class="mt-1 mb-0 text-muted small">
+                <span>Дата заказа: {{order['order_date']}}</span>
+            </div>
+            {% if order['payment_date']%}
+            <div class="mb-2 text-muted small">
+                <span>Дата оплаты: {{order['payment_date']}}</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-1"></div>
+        <div class="vr col-md-1"></div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <div class="d-flex flex-row align-items-center mb-1">
+                <h5 class="mb-1 me-1">{{order['total']}} ₽</h5>
+            </div>
+            <div class="d-flex flex-column mt-3">
+<form action="/basket/list/order" method="POST">
+        <input type="hidden" name="order" value={{order['idorders']}}>
+        <input type="submit"
+                {% if order['status'] == 0 %}
+                    class="btn btn-primary btn-lg"
+                {% elif order['status'] == 1 %}
+                    class="btn btn-success btn-lg"
+                {% elif order['status'] == 2 %}
+                    class="btn btn-danger btn-lg"
+                {% endif %}
+
+        value="Подробнее">
+    </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+

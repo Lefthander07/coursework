@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% import 'basket_components.html' as utils %}
+
+{% block content %}
+<div class="card container col-8 p-5" style="width: 40rem; height: 40rem">
+    <h2 class="text-center">Информация о заказе</h2>
+    <ul class="list-group mt-3" style="height: 100%; overflow-y: auto">
+        {% for item in items %}
+        <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div>
+                <h6 class="my-0">{{ item['gname'] }}</h6>
+                <small class="text-muted">Артикль: {{ item['idgoods'] }}</small> </br>
+
+                <small class="text-muted">Количество: {{ item['quantity'] }}</small>
+            </div>
+            <span class="text-muted">{{ item['quantity'] * item['price'] }} ₽</span>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="list-group-item d-flex justify-content-between">
+        <span>Всего:</span>
+        <strong>{{ order_info['total'] }} ₽</strong>
+    </div>
+
+
+<!--    <a href="/" class="btn btn-primary mt-3">-->
+<!--        В каталог-->
+<!--    </a>-->
+        {% if order_info['status'] == 0 %}
+        <form action="/basket/list/order/update" method="POST">
+        <input type="hidden" name="idorder" value={{order_info['idorders']}}>
+        <input type="submit" class="btn btn-primary mt-3"
+        value="Оплатить">
+    </form>
+        {% elif order_info['status']==1 %}
+    <a href="/" class="btn btn-primary mt-3">
+        Заказ оплачен. В меню
+    </a>
+    {% else %}
+            <a href="/" class="btn btn-danger mt-3">
+        Ваш заказ просрочен. Вернуться в меню
+    </a>
+    {% endif %}
+
+
+
+
+
+</div>
+{% endblock %}

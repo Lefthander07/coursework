@@ -1,0 +1,17 @@
+{
+  "manager": [
+
+    "", "bp_report", "start_report", "create", "view"
+  ],
+  "admin": ["", "bp_auth", "bp_query", "bp_report", "view", "create", "start_report"
+  ],
+
+  "client": [ "", "bp_basket", "basket_index", "clear_basket", "order", "edit_amount_basket", "delete_from_basket", "order_list", "view_order",
+    "update_status", "buy"
+  ],
+
+"director": [ "", "bp_report", "start_report", "view"
+  ],
+  "consultant": ["", "bp_query", "query_index", "query1",
+    "query2", "query3", "query4", "query5", "query6"]
+}

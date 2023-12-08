@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-4 card mt-5 container text-center col-8" style="height: 80%; overflow-y: auto">
+    <h2 class="display-6">Меню отчетов</h2>
+    <div class="container mt-3 d-flex flex-column gap-2">
+        {% for report in report_list %}
+            <form action='' method = 'POST' class="d-flex">
+                <label class="text-start col-7">{{ report['rep_name'] }}</label>
+                <div class="col-5 d-flex justify-content-between">
+                    {% if session['group_user'] == "manager" or session['group_user'] == "admin" %}
+                    <input type="submit" name="create_rep" id="create_rep" value="Создать" class="btn btn-primary" style="width: 10rem">
+                    <input type="submit" name="view_rep" id="view_rep" value="Просмотреть" class="btn btn-primary" style="width: 10rem">
+                    {% endif %}
+                     {% if session['group_user'] == "director" or session['group_user'] == "admin" %}
+                    <input type="submit" name="view_rep" id="view_rep" value="Просмотреть" class="btn btn-primary" style="width: 10rem">
+                    {% endif %}
+                    <input type="hidden" name="rep_id" value="{{report['rep_id']}}">
+                </div>
+            </form>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

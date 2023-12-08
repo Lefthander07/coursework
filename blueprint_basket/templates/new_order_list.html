@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% import 'basket_components.html' as utils %}
+
+{% block content %}
+<div class="card container col-8 p-5" style="height: 40rem">
+    <div class="row" style="height: 100%">
+        <div class="col-md-15" style="height: 100%">
+            <div class="mt-3 scroll-area" style="height: 90%; overflow-y: auto">
+                {% if order_list%}
+                <h2 class="fw-bold mb-0 text-black">Список заказов</h2>
+                {% for i in order_list  %}
+               {{ utils.render_order(i) }}
+                {%endfor%}
+                {% else %}
+                <h1>Нет заказов для просмотра</h1>
+                {%endif%}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

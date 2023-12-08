@@ -1,0 +1,33 @@
+{% extends "base.html"%}
+{% block content%}
+
+
+
+<div style="padding-left:16px">
+  <h2>>Все сведения о покупателях, ни разу не сделавших заказ на покупку товаров в
+[МЕСЯЦ] [ГОД]</h2>
+<form action = "/queries/5" method="POST" name="goods">
+
+  <!-- Email input -->
+  <div class="form-outline mb-4">
+    <input style='
+    width: 50%;
+' type="month" name="date" class="form-control" />
+    <label class="form-label">МЕСЯЦ-ГОД</label>
+  </div>
+
+
+
+<!--  <div class="form-outline mb-4">-->
+<!--    <input style='-->
+<!--    width: 50%;-->
+<!--' type="number" name="month" class="form-control" />-->
+<!--    <label class="form-label">МЕСЯЦ</label>-->
+<!--  </div>-->
+
+  <!-- Submit button -->
+  <button type="submit" class="btn btn-primary btn-block mb-4">Найти</button>
+
+</form>
+</div>
+{% endblock%}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 card mt-5 container text-center col-8" style="height: 80%; overflow-y: auto">
+    <h3 class="display-6">{{name}}</h3>
+    <div class="container mt-3 d-flex flex-column gap-2">
+        <form action="" method ="POST" class="d-flex flex-column gap-4 align-items-center">
+            <div class="form-group row col-12">
+                <label for="input_start" class="col-4 col-form-label text-start">Введите начало периода</label>
+                <div class="col-8">
+                    <input type="date" class="form-control" id="input_start" name="input_start" required="">
+                </div>
+            </div>
+            <div class="form-group row col-12">
+                <label for="input_end" class="col-4 col-form-label text-start">Введите конец периода</label>
+                <div class="col-8">
+                    <input type="date" class="form-control" id="input_end" name="input_end" required="">
+                </div>
+            </div>
+            <input type="submit" value="{{ 'Создать' if mode == 'create' else 'Показать' }}" class="btn btn-primary col-4">
+        </form>
+        {% if message %}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+        </div>
+        {% endif %}
+    </div>
+    <a class="mt-auto" href={{ url_for('bp_report.start_report') }}>Вернуться в главное меню</a>
+</div>
+{% endblock %}
