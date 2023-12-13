@@ -1,7 +1,7 @@
 {% extends "base.html"%}
 {% block content%}
 {% if exists%}
-<h1>{{name}}</h1>
+<h1>{{name}}ы:</h1>
 {% for i in exists%}
 <form action="" method="post">
         <input type="hidden" name="period" value={{ i['from_date'] + '/' + i['to_date']}}>
@@ -9,6 +9,7 @@
     </form>
 <br>
 {%endfor%}
+<a href="/report">Вернуться в меню отчётов</a>
 {%else%}
 <h1 class="text-center">Нет существующих отчётов</h1>
 <h1 class="text-center"><a class="mt-auto" href={{ url_for('bp_report.start_report') }}> Вернуться в меню отчётов</a></h1>

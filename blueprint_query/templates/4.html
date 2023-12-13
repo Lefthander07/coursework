@@ -1,0 +1,28 @@
+{% extends "base.html"%}
+
+{%block content%}
+  <h2>Сведения о покупателях, заключивших долгосрочные договора,  не
+сделавшие/сделавшие заказ</h2>
+
+<form action="/queries/4" method="post">
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="NOT NULL">
+  <label class="form-check-label" for="flexRadioDefault1">
+    Сделавшие заказ
+  </label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked value="NULL">
+  <label class="form-check-label" for="flexRadioDefault2">
+    Не сделавшие заказ
+  </label>
+</div>
+      <button type="submit" class="btn btn-primary btn-block mb-4">Найти</button>
+
+</form>
+
+
+</form>
+</div>
+
+{% endblock%}

@@ -11,15 +11,18 @@ sql_provider = SQLProvider('blueprint_basket/sql')
 def clear():
     if 'basket' in session:
          session.pop('basket')
-
+    if 'total_basket' in session:
+        session.pop('total_basket')
 @blueprint_basket.route('/', methods=['GET', 'POST'])
 def basket_index():
+    print(session.get('total_basket'))
     cached_select = fetch_from_cache('all_items', current_app.config['cache_config'])(select)
     if request.method == 'GET':
         sql_statement = sql_provider.get('all.sql')
         items = cached_select(current_app.config['DB_CONFIG'], sql_statement)
         basket_items = session.get('basket', {})
-        return render_template('basket_index.html', items=items, basket=basket_items)
+        total_basket = session.get('total_basket', 0)
+        return render_template('basket_index.html', items=items, basket=basket_items, total=total_basket)
     else:
         id = request.form['item_id']
         sql_statement = sql_provider.get('goods.sql', idgood=id)
@@ -31,20 +34,28 @@ def basket_index():
 @blueprint_basket.route('/amount', methods=['GET', 'POST'])
 def edit_amount_basket():
     curr_basket = session.get('basket', {})
+    total_basket = session.get('total_basket', 0)
+
     if 'value' in request.args:
         id_detail = request.args['id_detail']
+        old_amount = curr_basket[id_detail]['count']
         amount = curr_basket[id_detail]['count'] + int(request.args['value'])
     else:
         id_detail = request.form['detail']
+        old_amount = curr_basket[id_detail]['count']
         amount = int(request.form['amount'])
     max_amount = int(curr_basket[id_detail]['available'])
 
     amount = 1 if amount < 1 else amount
     amount = max_amount if amount > max_amount else amount
 
+    total_basket += (amount - old_amount) * curr_basket[id_detail]['price']
+
+
     curr_basket[id_detail]['count'] = amount
 
     session['basket'] = curr_basket
+    session['total_basket'] = total_basket
     session.permanent = True
 
     return redirect(url_for('bp_basket.basket_index'))
@@ -57,8 +68,13 @@ def clear_basket():
 @blueprint_basket.route('/delete', methods=['GET', 'POST'])
 def delete_from_basket():
     curr_basket = session.get('basket', {})
+    total_basket = session.get('total_basket')
+
+    total_basket -= curr_basket[request.args['id']]['price'] * curr_basket[request.args['id']]['count']
+
     curr_basket.pop(request.args['id'])
     session['basket'] = curr_basket
+    session['total_basket'] = total_basket
     session.permanent = True
     return redirect(url_for('bp_basket.basket_index'))
 
@@ -79,7 +95,6 @@ def view_order_info(idorder):
 
 def make_order(status):
     basket = session.get('basket', {})
-    print(basket)
     if basket:
         with DBContextManager(current_app.config['DB_CONFIG']) as cursor:
             goods_ids = [goods_id for goods_id in basket]
@@ -104,8 +119,7 @@ def make_order(status):
                 n_inserts = basket[str(item_description['idgoods'])]['count']
                 n_left = int(item_description['available']) - n_inserts
                 if (n_left < 0):
-                    print("В корзине больше чем доступно")
-                    return redirect('/basket')
+                    raise Exception("Товара в корзине больше чем доступно")
                 elif (n_left == 0):
                     pass
 
@@ -139,7 +153,7 @@ def view_order():
 def update_status():
     if request.method == "POST":
         payment_date = datetime.today().strftime('%Y-%m-%d')
-        sql_statement = sql_provider.get('update_status.sql', idorder = request.form['idorder'], payment_date=payment_date)
+        sql_statement = sql_provider.get('update_status.sql', idorder = request.form['idorder'])
         a = update(current_app.config['DB_CONFIG'], sql_statement)
         return render_template('status_page.html', message='Заказ оплачен')
 
@@ -153,46 +167,14 @@ def order():
 @blueprint_basket.route('/buy')
 def buy():
     return make_order(1)
-    # basket = session.get('basket', {})
-    # print(basket)
-    # if basket:
-    #     with DBContextManager(current_app.config['DB_CONFIG']) as cursor:
-    #         goods_ids = [goods_id for goods_id in basket]
-    #         goods_ids = ','.join(goods_ids)
-    #         sql_statement = sql_provider.get('goods_by_id.sql', goods_ids=goods_ids)
-    #         cursor.execute(sql_statement)
-    #         schema = [col[0] for col in cursor.description]
-    #         item_descriptions = [dict(zip(schema, row)) for row in cursor.fetchall()]
-    #         order_date = datetime.today().strftime('%Y-%m-%d')
-    #         deadline_date = (datetime.today() + timedelta(days=3)).strftime('%Y-%m-%d')
-    #
-    #         total = 0
-    #         for i in basket:
-    #             total += basket[i]['count'] * basket[i]['price']
-    #
-    #         sql_statement = sql_provider.get('create_order.sql', user_id=session['id_user'],\
-    #                                          order_date=order_date, deadline_date=deadline_date,total=total, status=0)
-    #
-    #
-    #         cursor.execute(sql_statement)
-    #         order_id = cursor.lastrowid
-    #         for item_description in item_descriptions:
-    #             n_inserts = basket[str(item_description['idgoods'])]['count']
-    #             idgoods = basket[str(item_description['idgoods'])]['id']
-    #             sql_statement = sql_provider.get('create_order_line.sql', idgoods=idgoods,idorder=order_id, quantity=n_inserts)
-    #             cursor.execute(sql_statement)
-    #
-    #             sql_statement = sql_provider.get('update.sql', idgoods = idgoods, ordered=n_inserts)
-    #             cursor.execute(sql_statement)
-    #         clear()
-    #         return render_template('success_order.html')
-    # return render_template("error.html")
 
 def add(id, goods):
     basket = session.get('basket', {})
+    total_basket = session.get('total_basket', 0)
     if id in basket:
         if basket[id]['count'] < basket[id]['available']:
             basket[id]['count'] += 1
+            session['total_basket'] += 1 * basket[id]['price']
     else:
         basket[id] = {
             'id': id,
@@ -202,6 +184,10 @@ def add(id, goods):
             'count': 1,
             'available': goods['available']
         }
+        total_basket += basket[id]['count'] * basket[id]['price']
 
         session['basket'] = basket
+        session['total_basket'] = total_basket
         session.permanent = True
+        print("корзина",session['basket'])
+        print("сумма", session['total_basket'])

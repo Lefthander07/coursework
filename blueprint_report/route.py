@@ -26,11 +26,54 @@ def start_report():
 
         return redirect(url_rep.split('.')[-1])
 
-def create_rep(number):
+def create_rep(number, rep_start, rep_end):
+    # report_list = current_app.config['reports_list']
+    # form_page = 'report.html'
+    # if request.method == 'GET':
+    #     return render_template(form_page, mode="create", name=report_list[number-1]['rep_name'])
+    # else:
+    #     rep_start = request.form.get('input_start')
+    #     rep_end = request.form.get('input_end')
+    #
+    #     rep_start1 = (rep_start.split('-'))
+    #     rep_end1 = (rep_end.split('-'))
+    #     if int(rep_start1[0]) < 2100 and int(rep_end1[0]) < 2100 and (int(rep_start1[0]) <= int(rep_end1[0])) and \
+    #             (int(rep_start1[1]) <= int(rep_end1[1])) and (int(rep_start1[-1]) <= int(rep_end1[-1])):
+
+
+
+            sql_statement = sql_provider.get(str(number)+'.sql', date_from=rep_start, date_to=rep_end)
+            result = select(current_app.config['DB_CONFIG'], sql_statement)
+
+            if not result:
+                result = call_proc(current_app.config['DB_CONFIG'], 'report_'+str(number),rep_start, rep_end)
+                print("cal", result)
+
+                sql_statement = sql_provider.get(str(number) + '.sql', date_from=rep_start, date_to=rep_end)
+                result = select(current_app.config['DB_CONFIG'], sql_statement)
+                if result:
+                    return 1
+                else:
+                    print("tut")
+                    return -1
+                # return render_template('success_report.html')
+
+            else:
+                # return render_template(form_page, mode="create", message="Отчёт за заданный период существует")
+                return 0
+
+        # else:
+        #     # return render_template(form_page, mode="create", message="Некорректный ввод!")
+        #     return -1
+
+
+@blueprint_report.route('/create_rep_1', methods=['GET', 'POST'])
+@blueprint_report.route('/create_rep_2', methods=['GET', 'POST'])
+def create():
     report_list = current_app.config['reports_list']
-    form_page = 'report.html'
+    report_n = int(request.path.split('_')[-1])
     if request.method == 'GET':
-        return render_template(form_page, mode="create", name=report_list[number-1]['rep_name'])
+        return render_template('report.html', mode="create", name=report_list[report_n - 1]['rep_name'])
     else:
         rep_start = request.form.get('input_start')
         rep_end = request.form.get('input_end')
@@ -42,25 +85,20 @@ def create_rep(number):
 
 
 
-            sql_statement = sql_provider.get(str(number)+'.sql', date_from=rep_start, date_to=rep_end)
-            result = select(current_app.config['DB_CONFIG'], sql_statement)
 
-            if not result:
-                result = call_proc(current_app.config['DB_CONFIG'], 'report'+str(number),rep_start, rep_end)
-                print("cal", result)
+
+            code = create_rep(int(report_n), rep_start, rep_end)
+            print("code", code)
+            if code == 1:
                 return render_template('success_report.html')
-
-            else:
-                return render_template(form_page, mode="create", message="Отчёт за заданный период существует")
+            elif code == 0:
+                return render_template('report.html', mode="create", message="Отчёт за заданный период существует")
+            elif code == -1:
+                return render_template('report.html', mode="create", message="Нет данных за отчётный период.Отчёт не создан.")
         else:
-            return render_template(form_page, mode="create", message="Некорректный ввод!")
+            return render_template('report.html', mode="create", message="Некорректный ввод!")
 
 
-@blueprint_report.route('/create_rep_1', methods=['GET', 'POST'])
-@blueprint_report.route('/create_rep_2', methods=['GET', 'POST'])
-def create():
-    report_n = request.path.split('_')[-1]
-    return create_rep(int(report_n))
 
 
 def get_exist_report(number):
@@ -76,8 +114,6 @@ def view():
     report_list = current_app.config['reports_list']
     if request.method == 'GET':
         exists = get_exist_report(number)
-        print(exists)
-        print("number:", number, "exist", exists)
         return render_template("report_list.html", exists=exists, name=report_list[number-1]['rep_name'])
     else:
         period = (request.form.get('period').split('/'))
@@ -89,4 +125,4 @@ def view():
         if not product_result:
             product_result = None
         return render_template('result_rep.html', employees=product_result, col_name=col_name,
-                                   name=report_list[number-1]['rep_name'])
+                                   name=report_list[number-1]['rep_name'], rep_start = rep_start, rep_end = rep_end)

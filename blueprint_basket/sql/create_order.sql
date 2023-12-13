@@ -1,1 +1,1 @@
-INSERT INTO orders VALUES(NULL, $user_id, '$order_date', $status, '$deadline_date', $payment_date, $total)
+INSERT INTO orders VALUES(NULL, $user_id, CURDATE(), $status, DATE_ADD(CURDATE(), INTERVAL 3 DAY), $payment_date, $total)

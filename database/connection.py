@@ -23,6 +23,7 @@ class DBContextManager:
 
         if self.cursor and self.conn:
             if exc_type:
+                print("rollback")
                 self.conn.rollback()
             else:
                 self.conn.commit()
